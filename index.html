@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f2f3f5">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="工作指南">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-512.png">
+<title>工作指南</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f2f3f5;
+    --card: #ffffff;
+    --text: #1f2329;
+    --muted: #8a919f;
+    --line: #e5e6eb;
+    --focus: #4a7dff;
+    --go: #3b5bdb;
+    --go-bg: #e9edfc;
+    --go-bg-h: #dbe2fa;
+    --warn-bg: #fff7e6;
+    --warn-line: #f0d9a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 15px/1.5 -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 26px 16px 72px;
+    -webkit-font-smoothing: antialiased;
+  }
+  main { width: 100%; max-width: 560px; }
+  .card { background: var(--card); border-radius: 14px; margin-bottom: 14px; }
+
+  .hd { display: flex; align-items: baseline; gap: 10px; padding: 0 4px 12px; }
+  .hd h1 { font-size: 17px; font-weight: 700; }
+  .hd span { font-size: 12.5px; color: var(--muted); }
+
+  #warn {
+    background: var(--warn-bg);
+    border: 1px solid var(--warn-line);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #8a6d1a;
+    margin-bottom: 14px;
+  }
+
+  /* ---- 草稿条 ---- */
+  #draftBar {
+    display: flex; align-items: center; gap: 4px;
+    background: var(--go-bg);
+    border-radius: 12px;
+    padding: 9px 14px;
+    font-size: 13px;
+    color: var(--go);
+    margin-bottom: 14px;
+  }
+  #draftText { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #draftBar button {
+    flex: none;
+    border: 0; background: none; border-radius: 7px;
+    font-family: inherit; font-size: 13px;
+    padding: 3px 8px; cursor: pointer;
+    transition: background .12s;
+  }
+  #draftBar button:hover { background: var(--go-bg-h); }
+  #draftResume { color: var(--go); font-weight: 600; }
+  #draftDrop { color: #86909c; }
+  #draftDrop:hover { color: #4e5969; }
+
+  /* ---- 录入区 ---- */
+  .entry { padding: 18px 20px 14px; }
+  .entry input.thing {
+    display: block; width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    font-family: inherit; font-size: 14.5px; color: var(--text);
+    outline: 0;
+    transition: border-color .12s;
+  }
+  .entry input.thing:focus { border-color: var(--focus); }
+  .actrow {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 9px;
+  }
+  .state { color: var(--muted); font-size: 12.5px; }
+  .save {
+    flex: none;
+    border: 0; border-radius: 10px;
+    font-family: inherit; font-size: 14px; font-weight: 600;
+    padding: 8px 18px; cursor: pointer;
+    background: var(--go-bg); color: var(--go);
+    transition: background .12s, transform .1s, opacity .12s;
+  }
+  .save:hover { background: var(--go-bg-h); }
+  .save:active { transform: scale(.98); }
+  .save:disabled { opacity: .45; cursor: default; }
+  .save:disabled:hover { background: var(--go-bg); }
+
+  /* ---- 列表 ---- */
+  .list-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 20px 9px; color: var(--muted); font-size: 13px;
+  }
+  ul { list-style: none; }
+  .kcard { padding: 12px 20px 13px; border-top: 1px solid var(--line); }
+  .kcard.flash { animation: flash 1s ease-out; }
+  @keyframes flash { from { background: #eef3ff; } to { background: transparent; } }
+  .khead { display: flex; align-items: flex-start; gap: 8px; }
+  .ktitle {
+    flex: 1; min-width: 0;
+    font-size: 14.5px; font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+  .vbadge {
+    flex: none; font-size: 12px; font-weight: 600;
+    border-radius: 999px; padding: 2px 9px;
+    margin-top: 1px;
+  }
+  .vbadge.v-no { background: #eef0f3; color: #4e5969; }
+  .vbadge.v-cut { background: var(--warn-bg); color: #8a6d1a; }
+  .vbadge.v-do { background: var(--go-bg); color: var(--go); }
+  .kops { flex: none; }
+  .kops button {
+    border: 0; background: transparent; border-radius: 7px;
+    font-family: inherit; font-size: 14px; color: #c9cdd4;
+    padding: 2px 7px; cursor: pointer;
+    transition: color .12s, background .12s;
+  }
+  .kops button:hover { background: #f2f3f5; color: #d03050; }
+  .kvrow {
+    margin-top: 4px; font-size: 13.5px; line-height: 1.55; color: #4e5969;
+    white-space: pre-wrap; overflow-wrap: anywhere;
+  }
+  .kvlabel { color: var(--muted); font-size: 12.5px; }
+  .kdate { margin-top: 6px; font-size: 12.5px; color: var(--muted); }
+  .none-li { padding: 16px 20px 18px; text-align: center; color: var(--muted); font-size: 13px; }
+
+  /* ---- 底部工具条 ---- */
+  .toolbar { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn {
+    border: 1px solid var(--line);
+    background: #fff;
+    border-radius: 9px;
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--text);
+    padding: 8px 14px;
+    cursor: pointer;
+    transition: border-color .12s, background .12s, opacity .12s;
+  }
+  .btn:hover { border-color: #c9cdd4; background: #f7f8fa; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn:disabled:hover { border-color: var(--line); background: #fff; }
+  .toolbar .btn { font-size: 12.5px; padding: 6px 11px; }
+
+  /* ---- 撤销条 ---- */
+  #undo {
+    position: fixed; left: 50%; bottom: 26px;
+    transform: translate(-50%, 12px);
+    background: #1f2329; color: #fff; font-size: 13px;
+    padding: 9px 16px; border-radius: 999px;
+    display: flex; align-items: center; gap: 14px;
+    opacity: 0; pointer-events: none;
+    transition: opacity .18s, transform .18s;
+    box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    z-index: 40;
+    max-width: 90vw;
+  }
+  #undo.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+  #undo button { background: none; border: 0; color: #7ea2ff; font-size: 13px; font-weight: 600; font-family: inherit; cursor: pointer; padding: 0; flex: none; }
+  #undoText { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- 筛子（全屏向导） ---- */
+  #wiz {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    z-index: 30;
+    overflow-y: auto;
+    padding: 26px 16px 40px;
+  }
+  .wizbox { max-width: 560px; margin: 0 auto; }
+  .vhead { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+  .wizstep { color: var(--muted); font-size: 13px; }
+  .wizquit {
+    border: 0; background: none; border-radius: 7px;
+    font-family: inherit; font-size: 13px; color: var(--muted);
+    padding: 3px 8px; cursor: pointer;
+    transition: background .12s, color .12s;
+  }
+  .wizquit:hover { background: #e8e9ec; color: #4e5969; }
+  .dots { display: flex; gap: 6px; padding: 0 4px 12px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: #d5d8de; }
+  .dots i.on { background: var(--go); }
+  .wizcard { padding: 18px 20px 16px; }
+  .wizthing { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; overflow-wrap: anywhere; }
+  .qtext { font-size: 19px; font-weight: 600; line-height: 1.55; overflow-wrap: anywhere; }
+  .whybtn {
+    margin-top: 8px;
+    border: 0; background: none;
+    color: var(--go); font-size: 12.5px; font-family: inherit;
+    padding: 2px 0; cursor: pointer;
+  }
+  .whybtn:hover { text-decoration: underline; }
+  .whypanel {
+    margin-top: 8px;
+    background: #f7f8fa;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 13px; line-height: 1.6; color: #4e5969;
+  }
+  #answer {
+    display: block; width: 100%;
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-family: inherit; font-size: 14px; line-height: 1.55; color: var(--text);
+    background: #fff; resize: vertical; min-height: 120px; outline: 0;
+    transition: border-color .12s;
+  }
+  #answer:focus { border-color: var(--focus); }
+  .wizfoot { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+  .wizfoot .state { flex: 1; min-width: 0; }
+
+  /* ---- 结论屏 ---- */
+  .vrecap {
+    background: #f7f8fa;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 13px; line-height: 1.6; color: #4e5969;
+    margin-top: 12px;
+  }
+  .vrrow { display: flex; gap: 8px; overflow-wrap: anywhere; }
+  .vrrow + .vrrow { margin-top: 4px; }
+  .vrlabel { flex: none; color: var(--muted); font-size: 12.5px; padding-top: 1px; }
+  .vbtn {
+    display: block; width: 100%;
+    text-align: left;
+    border: 1.5px solid var(--line);
+    background: #fff;
+    border-radius: 12px;
+    padding: 11px 14px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color .12s, background .12s, transform .1s;
+  }
+  .vbtn:hover { border-color: #c9cdd4; }
+  .vbtn:active { transform: scale(.99); }
+  .vbtn.vsel { border-color: var(--go); background: var(--go-bg); }
+  .vbtn .vname { font-size: 15px; font-weight: 600; color: var(--text); }
+  .vbtn .vdesc { display: block; font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+  .vbtn.vsel .vname { color: var(--go); }
+  .stop-label { display: block; margin: 14px 0 6px; font-size: 13.5px; font-weight: 600; }
+  #stopline {
+    display: block; width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-family: inherit; font-size: 14px; color: var(--text);
+    background: #fff; outline: 0;
+    transition: border-color .12s;
+  }
+  #stopline:focus { border-color: var(--focus); }
+
+  [hidden] { display: none !important; }
+
+  /* PWA/移动端适配（由 build.js 注入） */
+  html { -webkit-text-size-adjust: 100%; }
+  body { padding: calc(20px + env(safe-area-inset-top)) 16px calc(72px + env(safe-area-inset-bottom)); }
+  #wiz { padding: calc(20px + env(safe-area-inset-top)) 16px calc(40px + env(safe-area-inset-bottom)); }
+  #undo { bottom: calc(26px + env(safe-area-inset-bottom)); }
+  @media (max-width: 480px) {
+    .entry { padding: 15px 16px 12px; }
+    .wizcard { padding: 15px 16px 14px; }
+    .entry input.thing, #answer, #stopline { font-size: 16px; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <div class="hd"><h1>工作指南</h1><span>动手前，先过一遍筛子</span></div>
+
+  <div id="warn" hidden>本地存储不可用：数据只在本页内存中，关闭页面即丢失。请尽快用「导出备份」留一份。</div>
+
+  <div class="card entry">
+    <input type="text" id="thing" class="thing" placeholder="想做的事：一句话说清，比如「给论文做个炫酷封面」" autocomplete="off">
+    <div class="actrow">
+      <span class="state" id="entryHint">按五步法过一遍，再决定动不动手</span>
+      <button type="button" class="save" id="startBtn" disabled>开始过筛</button>
+    </div>
+  </div>
+
+  <div id="draftBar" hidden>
+    <span id="draftText"></span>
+    <button type="button" id="draftResume">接着筛</button>
+    <button type="button" id="draftDrop">丢掉</button>
+  </div>
+
+  <section class="card" id="listCard">
+    <div class="list-head"><span id="sumText"></span></div>
+    <ul id="cardList"></ul>
+  </section>
+
+  <div class="toolbar">
+    <button type="button" class="btn" id="importBtn">导入备份</button>
+    <button type="button" class="btn" id="exportBtn">导出备份</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+</main>
+
+<div id="wiz" hidden>
+  <div class="wizbox">
+    <div class="vhead">
+      <span class="wizstep" id="wizStep"></span>
+      <button type="button" class="wizquit" id="wizQuit" title="进度会留着，下次接着筛">先不筛了</button>
+    </div>
+    <div class="dots" id="dots"><i></i><i></i><i></i><i></i><i></i></div>
+
+    <div class="card wizcard" id="wizQ">
+      <div class="wizthing" id="wizThing"></div>
+      <div class="qtext" id="qText"></div>
+      <button type="button" class="whybtn" id="whyBtn">为什么这么问</button>
+      <div class="whypanel" id="whyPanel" hidden></div>
+      <textarea id="answer"></textarea>
+      <div class="wizfoot">
+        <button type="button" class="btn" id="prevBtn">上一问</button>
+        <span class="state" id="reqHint"></span>
+        <button type="button" class="save" id="nextBtn">下一问</button>
+      </div>
+    </div>
+
+    <div class="card wizcard" id="wizV" hidden>
+      <div class="qtext">最后的结论是？</div>
+      <div class="vrecap">
+        <div class="vrrow"><span class="vrlabel">想做的事</span><span id="vThing"></span></div>
+        <div class="vrrow"><span class="vrlabel">最小版本</span><span id="vMinimal"></span></div>
+      </div>
+      <button type="button" class="vbtn" id="vNo" data-v="no"><span class="vname">不做</span><span class="vdesc">整件事不值得做，注意力留给别的</span></button>
+      <button type="button" class="vbtn" id="vCut" data-v="cut"><span class="vname">砍小做</span><span class="vdesc">只做最小版本，其余的全砍</span></button>
+      <button type="button" class="vbtn" id="vDo" data-v="do"><span class="vname">做</span><span class="vdesc">按最小版本做，到停止线就收手</span></button>
+      <div id="stopWrap" hidden>
+        <label class="stop-label" for="stopline">停止线：做到什么程度就收手？</label>
+        <input type="text" id="stopline" placeholder="例：写完大纲就交 / 最多投入一个下午 / 三天没进展就放弃" autocomplete="off">
+      </div>
+      <div class="wizfoot">
+        <button type="button" class="btn" id="vBack">上一问</button>
+        <span class="state" id="vHint"></span>
+        <button type="button" class="save" id="saveVerdict" disabled>存下结论</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="undo"><span id="undoText"></span><button type="button" id="undoBtn">撤销</button></div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'zhinan-log-v1';
+  var DRAFT_KEY = 'zhinan-log-draft-v1';
+  var UNDO_MS = 6000;
+  var VERDICTS = ['no', 'cut', 'do'];
+  var VERDICT_NAMES = { no: '不做', cut: '砍小做', do: '做' };
+  var VERDICT_IDS = { no: 'vNo', cut: 'vCut', do: 'vDo' };
+
+  var STEPS = [
+    {
+      tag: '质疑',
+      q: '谁在要这件事？不做会怎样？',
+      req: true,
+      why: '马斯克五步法的第一步：每个需求都必须能追到「谁」在要它——没人署名的需求最可疑。再想想不做会怎样，很多事到这一步就露馅了。',
+      ph: '例：我自己要的 / 老师要求的 / 大家都做了……不做的话：'
+    },
+    {
+      tag: '删除',
+      q: '哪些部分可以整个砍掉？',
+      req: false,
+      why: '先想删什么，别急着想怎么做。删掉一半还能成立，说明本来就不该做那么大——没删够，说明你删得还不够。',
+      ph: '例：花哨的排版、额外的功能、为了给别人看的部分……'
+    },
+    {
+      tag: '简化',
+      q: '剩下的最小版本是什么？（一句话）',
+      req: true,
+      why: '把真要做的压成一句话：小到做完不心疼，又能达到目的。这句话会跟着结论卡存下来，就是你要做的全部。',
+      ph: '例：能交上去的一页草稿 / 只记最关键的要点'
+    },
+    {
+      tag: '加速',
+      q: '有没有更快的路/现成的方案？',
+      req: false,
+      why: '别自己造轮子。先找现成模板、问做过的人——找不到再从零做。注意：只给「值得做的最小版本」提速。',
+      ph: '例：找个现成模板改 / 问同学要一份参考'
+    },
+    {
+      tag: '自动化',
+      q: '这事会再来吗？哪块值得变模板？',
+      req: false,
+      why: '只有会重复发生的事，才配变模板。只做一次的活用完就扔——把一次性的活自动化，是马斯克警告的第五步陷阱。',
+      ph: '例：每月都要交一次，表格存成模板复用'
+    }
+  ];
+
+  var state = { cards: [] };
+  var draft = null;
+  var undoAction = null;
+  var undoTimer = null;
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 存储 ---------- */
+  /* 事由和结论是主心骨，缺任何一个整张卡都不留 */
+  function validCard(c) {
+    return c && typeof c === 'object'
+      && typeof c.id === 'string' && c.id
+      && typeof c.thing === 'string' && c.thing.trim() !== ''
+      && VERDICTS.indexOf(c.verdict) !== -1
+      && typeof c.ts === 'number' && isFinite(c.ts);
+  }
+
+  function normalizeCard(c) {
+    return {
+      id: c.id,
+      thing: c.thing.trim(),
+      verdict: c.verdict,
+      minimal: typeof c.minimal === 'string' ? c.minimal.trim() : '',
+      stopline: typeof c.stopline === 'string' ? c.stopline.trim() : '',
+      ts: c.ts
+    };
+  }
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { cards: [] };
+      var data = JSON.parse(raw);
+      if (!data || typeof data !== 'object') return { cards: [] };
+      var cards = Array.isArray(data.cards) ? data.cards.filter(validCard).map(normalizeCard) : [];
+      return { cards: cards };
+    } catch (err) {
+      console.error('读取存储失败，按空数据启动', err);
+      return { cards: [] };
+    }
+  }
+
+  function save() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ v: 1, cards: state.cards }));
+    } catch (err) {
+      console.error('保存失败', err);
+      $('warn').hidden = false;
+    }
+  }
+
+  /* ---------- 草稿（筛到一半） ---------- */
+  function validDraft(d) {
+    return d && typeof d === 'object'
+      && typeof d.thing === 'string' && d.thing.trim() !== ''
+      && typeof d.step === 'number' && d.step >= 0 && d.step <= 5
+      && Math.floor(d.step) === d.step;
+  }
+
+  function normalizeDraft(d) {
+    var answers = [];
+    for (var i = 0; i < 5; i++) {
+      var a = Array.isArray(d.answers) ? d.answers[i] : '';
+      answers.push(typeof a === 'string' ? a : '');
+    }
+    return {
+      thing: d.thing.trim(),
+      step: d.step,
+      answers: answers,
+      verdict: VERDICTS.indexOf(d.verdict) !== -1 ? d.verdict : null,
+      stopline: typeof d.stopline === 'string' ? d.stopline : ''
+    };
+  }
+
+  function loadDraft() {
+    try {
+      var raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return null;
+      var d = JSON.parse(raw);
+      if (!validDraft(d)) return null;
+      return normalizeDraft(d);
+    } catch (err) {
+      console.error('读取草稿失败', err);
+      return null;
+    }
+  }
+
+  function saveDraft() {
+    try {
+      if (draft) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      } else {
+        localStorage.removeItem(DRAFT_KEY);
+      }
+    } catch (err) {
+      console.error('保存草稿失败', err);
+      $('warn').hidden = false;
+    }
+  }
+
+  /* ---------- 日期 ---------- */
+  function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+  function dayKey(ts) {
+    var d = new Date(ts);
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  function dateText(ts) {
+    var d = new Date(ts), now = new Date();
+    var k = dayKey(ts);
+    if (k === dayKey(now.getTime())) return '今天';
+    if (k === dayKey(now.getTime() - 86400000)) return '昨天';
+    return (d.getFullYear() === now.getFullYear() ? '' : d.getFullYear() + '年') + (d.getMonth() + 1) + '月' + d.getDate() + '日';
+  }
+
+  function timeText(ts) {
+    var d = new Date(ts);
+    return pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+  }
+
+  function fullTimeText(ts) {
+    var d = new Date(ts);
+    return d.getFullYear() + '年' + (d.getMonth() + 1) + '月' + d.getDate() + '日 ' + timeText(ts);
+  }
+
+  /* ---------- 工具 ---------- */
+  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+  function findIdx(id) {
+    for (var i = 0; i < state.cards.length; i++) {
+      if (state.cards[i].id === id) return i;
+    }
+    return -1;
+  }
+
+  function shortText(s) { return s.length > 16 ? s.slice(0, 16) + '…' : s; }
+
+  function sortedCards() {
+    return state.cards.slice().sort(function (a, b) { return b.ts - a.ts; });
+  }
+
+  function flashCard(id) {
+    var li = document.querySelector('.kcard[data-cid="' + id + '"]');
+    if (li) li.classList.add('flash');
+  }
+
+  /* ---------- 渲染：列表 ---------- */
+  function buildCard(c) {
+    var li = document.createElement('li');
+    li.className = 'kcard';
+    li.dataset.cid = c.id;
+
+    var head = document.createElement('div');
+    head.className = 'khead';
+    var title = document.createElement('span');
+    title.className = 'ktitle';
+    title.textContent = c.thing;
+    var badge = document.createElement('span');
+    badge.className = 'vbadge v-' + c.verdict;
+    badge.textContent = VERDICT_NAMES[c.verdict];
+    var ops = document.createElement('span');
+    ops.className = 'kops';
+    var del = document.createElement('button');
+    del.type = 'button';
+    del.dataset.del = c.id;
+    del.title = '删除';
+    del.textContent = '×';
+    ops.appendChild(del);
+    head.appendChild(title);
+    head.appendChild(badge);
+    head.appendChild(ops);
+
+    li.appendChild(head);
+
+    if (c.minimal) {
+      var rowM = document.createElement('div');
+      rowM.className = 'kvrow';
+      var lm = document.createElement('span');
+      lm.className = 'kvlabel';
+      lm.textContent = '最小版本：';
+      rowM.appendChild(lm);
+      rowM.appendChild(document.createTextNode(c.minimal));
+      li.appendChild(rowM);
+    }
+    if (c.stopline) {
+      var rowS = document.createElement('div');
+      rowS.className = 'kvrow';
+      var ls = document.createElement('span');
+      ls.className = 'kvlabel';
+      ls.textContent = '停止线：';
+      rowS.appendChild(ls);
+      rowS.appendChild(document.createTextNode(c.stopline));
+      li.appendChild(rowS);
+    }
+
+    var date = document.createElement('div');
+    date.className = 'kdate';
+    date.textContent = dateText(c.ts) + ' ' + timeText(c.ts);
+    date.title = fullTimeText(c.ts);
+    li.appendChild(date);
+    return li;
+  }
+
+  function noneItem(text) {
+    var li = document.createElement('li');
+    li.className = 'none-li';
+    li.textContent = text;
+    return li;
+  }
+
+  function renderList() {
+    var all = sortedCards();
+    if (state.cards.length === 0) {
+      $('sumText').textContent = '还没有筛过的事';
+    } else {
+      var n = 0, c = 0, d = 0;
+      state.cards.forEach(function (x) {
+        if (x.verdict === 'no') n++;
+        else if (x.verdict === 'cut') c++;
+        else d++;
+      });
+      $('sumText').textContent = '共 ' + state.cards.length + ' 张 · 不做 ' + n + ' · 砍小做 ' + c + ' · 做 ' + d;
+    }
+
+    var ul = $('cardList');
+    ul.textContent = '';
+    if (all.length === 0) {
+      ul.appendChild(noneItem('还没有筛过的事。上面写下想做的事，开始过筛。'));
+      return;
+    }
+    all.forEach(function (c) { ul.appendChild(buildCard(c)); });
+  }
+
+  /* ---------- 渲染：草稿条 ---------- */
+  function renderDraftBar() {
+    if (!draft) { $('draftBar').hidden = true; return; }
+    $('draftBar').hidden = false;
+    var at = draft.step <= 4 ? '第 ' + (draft.step + 1) + ' / 5 问' : '到结论了';
+    $('draftText').textContent = '上次没筛完：「' + shortText(draft.thing) + '」（' + at + '）';
+  }
+
+  function refreshStart() {
+    $('startBtn').disabled = !$('thing').value.trim();
+  }
+
+  function renderAll() {
+    renderList();
+    renderDraftBar();
+    refreshStart();
+  }
+
+  /* ---------- 筛子：打开 / 关闭 ---------- */
+  function openWizard(step) {
+    draft.step = step;
+    saveDraft();
+    $('wiz').hidden = false;
+    document.body.style.overflow = 'hidden';
+    renderWizard();
+  }
+
+  function quitWizard() {
+    $('wiz').hidden = true;
+    document.body.style.overflow = '';
+    renderAll();
+  }
+
+  function renderWizard() {
+    if (draft.step <= 4) {
+      $('wizQ').hidden = false;
+      $('wizV').hidden = true;
+      $('dots').hidden = false;
+      renderQuestion();
+    } else {
+      $('wizQ').hidden = true;
+      $('wizV').hidden = false;
+      $('dots').hidden = true;
+      renderVerdict();
+    }
+  }
+
+  /* ---------- 筛子：问题屏 ---------- */
+  function renderQuestion() {
+    var i = draft.step;
+    var s = STEPS[i];
+    $('wizStep').textContent = '第 ' + (i + 1) + ' / 5 问 · ' + s.tag;
+    $('wizThing').textContent = '筛：' + draft.thing;
+    $('qText').textContent = s.q;
+    $('whyBtn').textContent = '为什么这么问';
+    $('whyPanel').hidden = true;
+    $('whyPanel').textContent = s.why;
+    var ta = $('answer');
+    ta.value = draft.answers[i];
+    ta.placeholder = s.ph;
+    $('prevBtn').disabled = i === 0;
+    $('nextBtn').textContent = i === 4 ? '出结论' : '下一问';
+    $('reqHint').textContent = s.req ? '必答：哪怕写「不知道」也算想过' : '想不出可以空着，直接过';
+    refreshNext();
+    var dots = $('dots').children;
+    for (var k = 0; k < dots.length; k++) {
+      dots[k].className = k <= i ? 'on' : '';
+    }
+    ta.focus();
+  }
+
+  function refreshNext() {
+    var i = draft.step;
+    if (i > 4) return;
+    var req = STEPS[i].req;
+    $('nextBtn').disabled = req && !$('answer').value.trim();
+  }
+
+  function nextQuestion() {
+    var i = draft.step;
+    var val = $('answer').value;
+    if (STEPS[i].req && !val.trim()) return;
+    draft.answers[i] = val;
+    if (i < 4) {
+      draft.step = i + 1;
+      saveDraft();
+      renderQuestion();
+    } else {
+      draft.step = 5;
+      saveDraft();
+      renderWizard();
+    }
+  }
+
+  function prevQuestion() {
+    var i = draft.step;
+    if (i === 5) {
+      draft.step = 4;
+      saveDraft();
+      renderWizard();
+      return;
+    }
+    if (i === 0) return;
+    draft.answers[i] = $('answer').value;
+    draft.step = i - 1;
+    saveDraft();
+    renderQuestion();
+  }
+
+  /* ---------- 筛子：结论屏 ---------- */
+  function renderVerdict() {
+    $('wizStep').textContent = '结论';
+    $('vThing').textContent = draft.thing;
+    $('vMinimal').textContent = draft.answers[2].trim() || '—';
+    VERDICTS.forEach(function (v) {
+      $(VERDICT_IDS[v]).classList.toggle('vsel', draft.verdict === v);
+    });
+    var needStop = draft.verdict === 'cut' || draft.verdict === 'do';
+    $('stopWrap').hidden = !needStop;
+    $('stopline').value = draft.stopline;
+    refreshSaveVerdict();
+  }
+
+  function setVerdict(v) {
+    if (!draft) return;
+    draft.verdict = v;
+    if (v === 'no') draft.stopline = $('stopline').value;
+    saveDraft();
+    renderVerdict();
+  }
+
+  function refreshSaveVerdict() {
+    var v = draft.verdict;
+    var ok = !!v && (v === 'no' || $('stopline').value.trim() !== '');
+    $('saveVerdict').disabled = !ok;
+    if (!v) $('vHint').textContent = '先选一个结论';
+    else if (!ok) $('vHint').textContent = '填了停止线才能存下';
+    else $('vHint').textContent = '';
+  }
+
+  function saveVerdict() {
+    if (!draft) return;
+    var v = draft.verdict;
+    if (!v) return;
+    if (v !== 'no' && !$('stopline').value.trim()) return;
+    var card = {
+      id: genId(),
+      thing: draft.thing,
+      verdict: v,
+      minimal: draft.answers[2].trim(),
+      stopline: v === 'no' ? '' : $('stopline').value.trim(),
+      ts: Date.now()
+    };
+    state.cards.push(card);
+    save();
+    draft = null;
+    saveDraft();
+    quitWizard();
+    $('thing').value = '';
+    renderAll();
+    flashCard(card.id);
+    showUndo('已存下：' + shortText(card.thing), function () {
+      var idx = findIdx(card.id);
+      if (idx !== -1) state.cards.splice(idx, 1);
+      save();
+      renderAll();
+    });
+    $('thing').focus();
+  }
+
+  /* ---------- 开始过筛 / 草稿操作 ---------- */
+  function startScreen() {
+    var thing = $('thing').value.trim();
+    if (!thing) return;
+    if (draft) {
+      var ok = confirm('上次还有没筛完的「' + shortText(draft.thing) + '」，开始新的会丢掉它。继续？');
+      if (!ok) return;
+    }
+    draft = { thing: thing, step: 0, answers: ['', '', '', '', ''], verdict: null, stopline: '' };
+    saveDraft();
+    $('thing').value = '';
+    refreshStart();
+    openWizard(0);
+  }
+
+  function dropDraft() {
+    draft = null;
+    saveDraft();
+    renderAll();
+  }
+
+  /* ---------- 删除 ---------- */
+  function deleteCard(id) {
+    var idx = findIdx(id);
+    if (idx === -1) return;
+    var removed = state.cards.splice(idx, 1)[0];
+    save();
+    renderAll();
+    showUndo('已删除：' + shortText(removed.thing), function () {
+      state.cards.push(removed);
+      save();
+      renderAll();
+    });
+  }
+
+  /* ---------- 撤销条 ---------- */
+  function showUndo(text, fn) {
+    undoAction = fn;
+    $('undoText').textContent = text;
+    $('undo').classList.add('show');
+    clearTimeout(undoTimer);
+    undoTimer = setTimeout(hideUndo, UNDO_MS);
+  }
+
+  function hideUndo() {
+    undoAction = null;
+    clearTimeout(undoTimer);
+    $('undo').classList.remove('show');
+  }
+
+  $('undoBtn').addEventListener('click', function () {
+    if (!undoAction) return;
+    var fn = undoAction;
+    hideUndo();
+    fn();
+  });
+
+  /* ---------- 导出 / 导入 ---------- */
+  function exportJSON() {
+    var now = new Date();
+    var ymd = now.getFullYear() + pad2(now.getMonth() + 1) + pad2(now.getDate());
+    var data = { v: 1, exportedAt: now.toISOString(), cards: state.cards };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = '工作指南备份-' + ymd + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+  }
+
+  $('exportBtn').addEventListener('click', exportJSON);
+  $('importBtn').addEventListener('click', function () { $('importFile').click(); });
+
+  $('importFile').addEventListener('change', function () {
+    var input = this;
+    var f = input.files && input.files[0];
+    if (!f) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      input.value = '';
+      var data;
+      try {
+        data = JSON.parse(String(reader.result));
+      } catch (err) {
+        alert('导入失败：文件不是有效的 JSON');
+        return;
+      }
+      if (!data || typeof data !== 'object' || !Array.isArray(data.cards)) {
+        alert('导入失败：不像是本工具的备份文件（缺少 cards）');
+        return;
+      }
+      var cards = data.cards.filter(validCard).map(normalizeCard);
+      var ok = confirm('将用备份覆盖当前全部数据（现有 ' + state.cards.length + ' 张结论卡 → 备份 ' + cards.length + ' 张结论卡），确定？');
+      if (!ok) return;
+      state.cards = cards;
+      save();
+      renderAll();
+      alert('已导入 ' + cards.length + ' 张结论卡');
+    };
+    reader.readAsText(f);
+  });
+
+  /* ---------- 事件 ---------- */
+  $('startBtn').addEventListener('click', startScreen);
+
+  $('thing').addEventListener('input', refreshStart);
+  $('thing').addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter') return;
+    if (ev.isComposing || ev.keyCode === 229) return;
+    ev.preventDefault();
+    if (!$('startBtn').disabled) startScreen();
+  });
+
+  $('draftResume').addEventListener('click', function () {
+    if (draft) openWizard(draft.step);
+  });
+  $('draftDrop').addEventListener('click', dropDraft);
+
+  $('wizQuit').addEventListener('click', quitWizard);
+
+  $('whyBtn').addEventListener('click', function () {
+    var p = $('whyPanel');
+    p.hidden = !p.hidden;
+    this.textContent = p.hidden ? '为什么这么问' : '收起';
+  });
+
+  $('answer').addEventListener('input', function () {
+    if (draft && draft.step <= 4) {
+      draft.answers[draft.step] = this.value;
+      saveDraft();
+    }
+    refreshNext();
+  });
+
+  $('prevBtn').addEventListener('click', prevQuestion);
+  $('nextBtn').addEventListener('click', nextQuestion);
+  $('vBack').addEventListener('click', prevQuestion);
+
+  VERDICTS.forEach(function (v) {
+    $(VERDICT_IDS[v]).addEventListener('click', function () { setVerdict(v); });
+  });
+
+  $('stopline').addEventListener('input', function () {
+    if (draft) draft.stopline = this.value;
+    saveDraft();
+    refreshSaveVerdict();
+  });
+  $('stopline').addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter') return;
+    if (ev.isComposing || ev.keyCode === 229) return;
+    ev.preventDefault();
+    if (!$('saveVerdict').disabled) saveVerdict();
+  });
+
+  $('saveVerdict').addEventListener('click', saveVerdict);
+
+  document.addEventListener('click', function (ev) {
+    var del = ev.target.closest('[data-del]');
+    if (del) { deleteCard(del.dataset.del); return; }
+  });
+
+  document.addEventListener('keydown', function (ev) {
+    var t = ev.target;
+    var tagName = t && t.tagName;
+    var typing = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+
+    if (ev.key === 'Escape') {
+      if (typing) { t.blur(); return; }
+      if (!$('wiz').hidden) { quitWizard(); return; }
+      hideUndo();
+      return;
+    }
+    if (typing) return;
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+
+    if (!$('wiz').hidden && draft && draft.step === 5) {
+      if (ev.key === '1') { setVerdict('no'); return; }
+      if (ev.key === '2') { setVerdict('cut'); return; }
+      if (ev.key === '3') { setVerdict('do'); return; }
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        if (!$('saveVerdict').disabled) saveVerdict();
+        return;
+      }
+    }
+    if (ev.key === 'Enter' && tagName === 'BUTTON') ev.preventDefault();
+  });
+
+  /* ---------- 启动 ---------- */
+  state.cards = load().cards;
+  draft = loadDraft();
+  renderAll();
+})();
+</script>
+
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').catch(function () {});
+  });
+}
+</script>
+</body>
+</html>
